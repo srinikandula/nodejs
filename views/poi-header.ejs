@@ -1,0 +1,19 @@
+<div class="row">
+    <div class="col-xs-6 poi-header">
+        <a href="https://getwellcities.com/"><img class="image-logo" src="/images/logo-only-full-80.png" alt="Get Well Cities" /></a>
+    </div>
+    <% if (user) { %>
+    <div class="col-xs-6">
+        <div class="pull-right">
+            <br/>
+            <% if (previousBusinessId) { %>
+                <a class="btn btn-xs btn-default" href="/poiview/<%= previousBusinessId %>">&lt;&nbsp;Prev</a>&nbsp;
+            <% } %>
+            &nbsp;<a class="btn btn-xs btn-default" href="/console/#/businesses/<%= business.id %>" target="_blank">Edit</a>&nbsp;
+            <% if (nextBusinessId) { %>
+                &nbsp;<a class="btn btn-xs btn-default" href="/poiview/<%= nextBusinessId %>">Next&nbsp;&gt;</a>
+            <% } %>
+        </div>
+    </div>
+    <% } %>
+</div>

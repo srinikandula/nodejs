@@ -1,0 +1,58 @@
+<% layout('layout') %>
+<% stylesheet('/css/register.css') %>
+
+
+<div class="register">
+    <div class="row">
+        <div class="col-lg-6 col-lg-offset-3">
+            <form class="bs-example form-horizontal" method="post" action="">
+                <div class="fieldset">
+                    <div class="bs-callout bs-callout-info">
+                        <h4>Create a New Account</h4>
+
+                        Registering for this site will create a new user account for you
+                        via <a href="https://stormpath.com">Stormpath</a>, then log you in
+                        automatically.
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">First Name</label>
+                        <div class="col-lg-4">
+                            <input id="firstName" class="form-control" name="firstName" type="text" placeholder="First Name" value="<%= firstName %>" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Last Name</label>
+                        <div class="col-lg-4">
+                            <input id="lastName" class="form-control" name="lastName" type="text" placeholder="Last Name" value="<%= lastName %>" required>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Email</label>
+                        <div class="col-lg-4">
+                            <input id="username" class="form-control" name="username" type="email" placeholder="Email" value="<%= email %>" required>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-lg-4 control-label">Password</label>
+                        <div class="col-lg-4">
+                            <input id="password" class="form-control" name="password" type="password" placeholder="Password" required>
+                        </div>
+                    </div>
+
+                    <br/>
+
+                    <button type="submit" class="btn btn-primary">Register</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>

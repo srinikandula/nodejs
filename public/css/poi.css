@@ -1,0 +1,26 @@
+body {
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 300;
+}
+
+.image-logo {
+    height: 80px;
+    max-height: 100%;
+    width: auto;
+}
+
+.section-spacer {
+    height: 0.67em;
+}
+
+.classification-list {
+    color: #000;
+}
+
+.poi-header {
+    padding: 8px;
+}
+
+.poi-footer {
+    font-size: 0.8em;
+}

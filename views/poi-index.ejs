@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Get Well - Eat</title>
+
+    <link rel="stylesheet" href="/css/bootstrap-gwc.min.css">
+    <link rel="stylesheet" href="/css/poi-index.css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="container">
+
+    <div class="row index-page-header">
+        <div class="col-xs-4">
+            <a href="https://getwellcities.com/">
+                <img class="image-logo" src="/images/logo-only-full-80.png" alt="Get Well Cities" />
+            </a>
+        </div>
+        <div class="col-xs-8">
+            <h2>Get Well Cities</h2>
+        </div>
+    </div>
+
+    <br/>
+    <h2>Category "<%= catName %>" - POI Index</h2>
+    <h5><%= pois.length %> total</h5>
+    <table class="table table-condensed">
+    <%
+    pois.forEach(function (poi, index) {
+    %>
+        <tr>
+            <td><%= index + 1 %></td>
+            <td><a href="/poiview/<%= poi._id %>" target="_blank"><%= poi.name %></a></td>
+        </tr>
+    <%
+    });
+    %>
+    </table>
+
+    <%- include poi-footer.ejs %>
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</body>
+</html>

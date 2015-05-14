@@ -1,0 +1,67 @@
+<legend>{{ headline }}</legend>
+
+<div class="panel panel-info" ng-if="appConfigManager.areConditionsEnabled()">
+    <div class="panel-heading">
+        <a class="panel-title" href="#/conditions">Conditions</a>
+    </div>
+    <div class="panel-body">
+        This section lets you configure the list of available conditions.
+    </div>
+</div>
+
+<div class="panel panel-info" ng-if="appConfigManager.areProceduresEnabled()">
+    <div class="panel-heading">
+        <a class="panel-title" href="#/procedures">Procedures</a>
+    </div>
+    <div class="panel-body">
+        This section lets you configure the list of available procedures.
+    </div>
+</div>
+
+
+<div class="panel panel-info" ng-if="userManager.isAdmin()">
+    <div class="panel-heading">
+        <a class="panel-title" href="#/categories">Categories</a>
+    </div>
+    <div class="panel-body">
+        This section lets you configure the hierarchy of classifications that are used to categorize businesses.
+    </div>
+</div>
+
+<div class="panel panel-info" ng-if="userManager.isAdmin()">
+    <div class="panel-heading">
+        <a class="panel-title" href="#/neighborhoods">Neighborhoods</a>
+    </div>
+    <div class="panel-body">
+        This section lets you setup the names of neighborhoods in a city.
+    </div>
+</div>
+
+<div class="panel panel-info" ng-if="userManager.isAdmin()">
+    <div class="panel-heading">
+        <a class="panel-title" href="#/beacons">Beacons</a>
+    </div>
+    <div class="panel-body">
+        Manage beacons that have been deployed.
+    </div>
+</div>
+
+
+<div class="panel panel-info" ng-if="userManager.canViewBusinesses()">
+    <div class="panel-heading">
+        <a class="panel-title" href="#/businesses">Businesses</a>
+    </div>
+    <div class="panel-body">
+        Manage information about a business, view images, etc.
+    </div>
+</div>
+
+
+<div class="panel panel-info" ng-if="userManager.canViewAPIDocs()">
+    <div class="panel-heading">
+        <a class="panel-title" href="#/docs">API Docs</a>
+    </div>
+    <div class="panel-body">
+        Documentation for the REST API.
+    </div>
+</div>

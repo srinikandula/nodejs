@@ -1,0 +1,96 @@
+<legend>{{ headline }}</legend>
+
+
+<ol class="breadcrumb">
+    <li><a ng-href="/#/cities">All Cities</a></li>
+    <li ng-repeat="crumb in breadCrumbs"><a ng-href="/#/cities/{{crumb.id}}">{{crumb.name}}</a></li>
+    <li><strong>{{ currentNeighborhood.name }}</strong></li>
+</ol>
+
+
+<div class="toolbar-button-div pull-right">
+    <button type="button" class="btn btn-sm btn-primary" ng-click="handleClickAddNeighborhood()"><span class="glyphicon glyphicon-plus"></span> Add Neighborhood</button>
+    <button class="btn btn-sm btn-danger" ng-really-click="handleDeleteButtonClicked(currentNeighborhood.id)"><i class="glyphicon glyphicon-remove"></i> Delete {{ currentNeighborhood.name }}</button>
+</div>
+
+
+<br/>
+<br/>
+
+
+<table class="table table-bordered table-condensed table-hover" ng-table="neighborhoodContentTableParams">
+    <tr ng-repeat="neighborhood in currentPageOfNeighborhoods" ng-click="goToNeighborhoodsList(neighborhood)" class="clickable-item">
+        <td data-title="'#'">{{ $index + 1 }}</td>
+        <td data-title="'Name'" sortable="'name'">{{ neighborhood.name }}</td>
+        <td data-title="'# of Neighborhoods'" class="text-right">{{neighborhood.childrenCount}}</td>
+    </tr>
+    <tr ng-if="!currentPageOfNeighborhoods || currentPageOfNeighborhoods.length === 0">
+        <td colspan="3" class="text-center">No neighborhoods exist in {{ currentNeighborhood.name }}.  Please add some.</td>
+    </tr>
+</table>
+
+
+
+
+<div ng-if="poiCountEnabled">
+<br/>
+<br/>
+<br/>
+<br/>
+
+    <h3>This is the secret tool for updating POI count for all neighborhoods...</h3>
+
+        <button type="button" class="btn btn-primary" ng-click="recalculatePOICount()">Run</button>
+        <table class="table table-condensed table-bordered">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th># of POIs</th>
+            </tr>
+            </thead>
+            <tr ng-repeat="neighborhood in citiesAndNeighborhoodsManager.getAllData()">
+                <td>{{ $index + 1 }}</td>
+                <td>{{ neighborhood.name }}</td>
+                <td>{{ neighborhood.poiCount }}</td>
+            </tr>
+        </table>
+<br/>
+<br/>
+<br/>
+
+
+<pre class="tiny-debug">
+{{ citiesAndNeighborhoodsManager | json }}
+</pre>
+<br/>
+<br/>
+</div>
+
+
+<!-- modal popup for adding neighborhood to existing city/state/neighborhood -->
+
+<script type="text/ng-template" id="add-neighborhood-to-city-state-modal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Add Neighborhood to {{ parentNeighborhood.name }}</h3>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <form name="addNeighToCityForm" role="form">
+
+            <div class="form-group">
+                <label for="modalAddNeighInput">Neighborhood</label>
+                <input type="text" id="modalAddNeighInput" class="form-control" ng-model="neighborhood.name">
+            </div>
+        </form>
+        <!-- ---------------------------------------------------------------------------- -->
+
+        <!--<pre style="font-size: 0.6em">{{ neighborhood | json }}</pre>-->
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()" ng-disabled="!isInputValid()">Add</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>

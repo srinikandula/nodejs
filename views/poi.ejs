@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+
+    <link rel="stylesheet" href="/css/bootstrap-gwc.min.css">
+    <link rel="stylesheet" href="/css/poi.css">
+
+    <%
+    var gmapLink = null;
+    if (business.lat && business.long) {
+        gmapLink = 'http://maps.google.com/maps?q=' + business.lat + '+' + business.long + '&z=' + 16 + '&ll=' + business.lat + ',' + business.long;
+    }
+    %>
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="container">
+
+<%- include poi-header.ejs %>
+
+<% if (business.lat && business.long && gmapLink) { %>
+    <h3><a href="<%= gmapLink %>"><%= business.name %></a></h3>
+<% } else { %>
+    <h3><%= business.name %></h3>
+<%
+   }
+%>
+
+<% if (business.neighborhoodMostSpecific ) { %><h5><%= business.neighborhoodMostSpecific %></h5><% } %>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <% if (business.images && business.images.length > 0) { %>
+            <div id="poi-carousel" class="carousel slide poi-carousel" data-ride="carousel">
+                <ol class="carousel-indicators">
+                    <% for (var i = 0; i < business.images.length; i += 1) { %>
+                    <li data-target="#poi-carousel" data-slide-to="<%= i %>" <%= i === 0 ? 'class="active"' : '' %>></li>
+                    <% } %>
+                </ol>
+
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner">
+                    <% for (var j = 0; j < business.images.length; j += 1) { %>
+                    <div class="item<%= j === 0 ? ' active' : ''%>">
+                        <img class="center-block" src="<%= business.images[j].snappleUrl || business.images[j].url %>" alt="<%= business.images[j].name || '' %>">
+                        <div class="carousel-caption">
+                            <%= business.images[j].description || '' %>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+
+                <!-- Controls -->
+                <a class="left carousel-control" href="#poi-carousel" role="button" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                </a>
+                <a class="right carousel-control" href="#poi-carousel" role="button" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                </a>
+            </div>
+            <% } %>
+
+        </div>
+    </div>
+
+    <div class="section-spacer"></div>
+
+    <!-- address -->
+    <div class="row">
+        <div class="col-xs-12"><%= business.formattedAddress %></div>
+    </div>
+
+    <% if (business.phone) { %>
+    <div class="row">
+        <div class="col-xs-12"><%= business.phone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3') %></div>
+    </div>
+    <% } %>
+
+    <!-- rating -->
+    <% if (business.rating) { %>
+    <div class="row">
+        <div class="col-xs-3 col-sm-2">Rating</div>
+        <div class="col-xs-9 col-sm-10"><%= business.rating || 'No ratings yet' %></div>
+    </div>
+    <% } %>
+
+    <div class="row text-<%= bsClassEatMoveHeal %>">
+        <div class="col-xs-12"><%= business.categoryTypesDisplayValue || '' %></div>
+    </div>
+
+    <div class="row text-<%= bsClassEatMoveHeal %>">
+        <div class="col-xs-12"><%= business.categorySubTypesDisplayValue || '' %></div>
+    </div>
+
+    <div class="section-spacer"></div>
+
+    <!-- description -->
+    <div class="row">
+        <div class="col-xs-12"><%= business.description1 || '' %></div>
+    </div>
+
+
+    <div class="section-spacer"></div>
+
+    <!-- mobile app has horizontal bar here with [ call | directions | website ] -->
+
+    <% if (business.website) { %>
+    <div class="row">
+        <div class="col-xs-12"><a class="btn btn-sm btn-<%= bsClassEatMoveHeal %>" href="<%= business.website %>" target="_blank">Web Site</a></div>
+    </div>
+    <br/>
+    <div class="section-spacer"></div>
+    <% } %>
+
+    <!-- google map view here, but only if we know the lat/lon -->
+    <% if (business.lat && business.long) { %>
+    <div class="row">
+        <div class="col-xs-12">
+            <div id="map_canvas" style="height: 400px; overflow: hidden"></div>
+        </div>
+    </div>
+    <br/>
+    <div class="section-spacer"></div>
+    <% } %>
+
+    <!-- classifications -->
+    <%
+    var associatedClassificationIds = [];
+    _.each(business.categoryIds, function (categoryId) {
+        var acIds = (classificationsMap[categoryId] || {}).associatedClassificationIds || [];
+        associatedClassificationIds = associatedClassificationIds.concat(acIds);
+    });
+    for (var k = 0; k < classifications.length; k += 1) {
+        var classification = classifications[k];
+        if (_.isUndefined(classification.visible) || classification.visible) {
+            continue;
+        }
+        var classificationId = classification._id.toString();
+        if (_.isEmpty(business.categoryIds)) {
+            continue;
+        }
+        var isAssociated = _.contains(associatedClassificationIds, classificationId);
+        if (isAssociated && (!_.isEmpty(business['class_' + classificationId + '_Ids']) || business.hasOwnProperty('class_' + classificationId + '_flag') || business.hasOwnProperty('class_' + classificationId + '_' + classification.dataType))) {
+    %>
+        <div class="panel panel-<%= bsClassEatMoveHeal %>">
+            <div class="panel-heading">
+                <h4 class="panel-title"><%= classification.name %></h4>
+            </div>
+            <div class="panel-body">
+                <ul class="classification-list">
+    <%
+            // list/hierarchy
+            if (_.isUndefined(classification.dataType) || classification.dataType === 'list') {
+                var classificationTypeIds = business['class_' + classificationId + '_Ids'] || [];
+                getClassificationTypeNames(classificationId, classificationTypeIds).forEach(function (classificationTypeName) {
+    %>
+            <li><%= classificationTypeName %></li>
+    <%
+                });
+            }
+
+            if (classification.dataType === 'boolean') {
+    %>
+            <li><%= business['class_' + classificationId + '_flag'] ? 'Yes' : 'No' %></li>
+    <%
+        }
+
+            if (classification.dataType === 'string' || classification.dataType === 'integer' || classification.dataType === 'float') {
+                var classificationValue = business['class_' + classificationId + '_' + classification.dataType];
+    %>
+        <li><%= classificationValue %></li>
+    <%
+            }
+    %>
+                </ul>
+            </div>
+        </div>
+        <div class="section-spacer"></div>
+    <%
+        }
+    } %>
+
+
+    <div class="section-spacer"></div>
+
+    <% if (business.urlFacebook || business.urlTwitter) { %>
+    <div class="panel panel-<%= bsClassEatMoveHeal %>">
+        <div class="panel-heading">
+            <h4 class="panel-title">Web</h4>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <% if (business.urlFacebook) { %><div class="col-xs-6 col-sm-4"><a href="<%= business.urlFacebook %>" target="_blank">Facebook</a></div><% } %>
+                <!--<div class="col-xs-6 col-sm-4"><a href="" target="_blank">Menu</a></div>-->
+                <!--<div class="col-xs-6 col-sm-4"><a href="" target="_blank">Reservation</a></div>-->
+                <% if (business.urlTwitter) { %><div class="col-xs-6 col-sm-4"><a href="<%= business.urlTwitter %>" target="_blank">Twitter</a></div><% } %>
+            </div>
+        </div>
+    </div>
+    <% } %>
+
+    <%- include poi-footer.ejs %>
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+<% if (business.lat && business.long) { %>
+<script src="https://maps.googleapis.com/maps/api/js"></script>
+<script>
+    function initialize() {
+        var mapCanvas = document.getElementById('map_canvas');
+        var mapOptions = {
+            center: new google.maps.LatLng(<%= business.lat %>, <%= business.long %>),
+            zoom: 16,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(mapCanvas, mapOptions);
+        var marker = new google.maps.Marker({map: map, position: new google.maps.LatLng(<%= business.lat %>, <%= business.long %>)});
+        var infowindow = new google.maps.InfoWindow({content: "<b><%= business.name %></b><br/><%= business.formattedAddress %>" });
+        google.maps.event.addListener(marker, "click", function () {
+            infowindow.open(map, marker);
+        });
+        infowindow.open(map, marker);
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+<% } %>
+
+</body>
+</html>

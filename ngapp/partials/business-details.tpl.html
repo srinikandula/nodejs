@@ -1,0 +1,846 @@
+<legend>{{ headline }}</legend>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="pull-right">
+            <a ng-href="/poiview/{{ business.id }}" target="_blank" class="btn btn-sm btn-default">
+                <i class="glyphicon glyphicon-new-window"></i> Share POI Page
+            </a>
+            <button class="btn btn-sm btn-primary" ng-click="saveButtonClicked()"
+                    ng-if="userManager.canAddOrEditPOI(isAdd, business.id)">
+                <i class="glyphicon glyphicon-floppy-disk"></i> {{saveButtonText}}
+            </button>
+            <button ng-show="!isAdd" class="btn btn-sm btn-danger"
+                    ng-really-click="deleteButtonClicked()"
+                    ng-if="userManager.canAddOrEditPOI(isAdd, business.id)">
+                <i class="glyphicon glyphicon-remove"></i> Delete
+            </button>
+        </div>
+    </div>
+</div>
+<br/>
+
+<form name="businessForm" class="form-horizontal" role="form">
+
+    <div class="form-group">
+
+        <div class="row">
+            <div class="col-sm-5">
+                <ol class="breadcrumb">
+                    <li><a href="/#/businesses">All</a></li>
+                    <li ng-if="!isAdd"><a class="clickable-item" ng-click="goBackToFilteredResults()">Filtered Results</a></li>
+                    <li class="active">{{ isAdd ? 'Add' : 'Edit' }} Business</li>
+                </ol>
+            </div>
+            <!--<div class="col-sm-1 col-sm-offset-1 nobr clickable-item" ng-click="business.published = true; businessForm.$setDirty(true)"><input type="radio" name="published" ng-model="business.published" ng-value="isPublished"/> Published</div>-->
+            <!--<div class="col-sm-1 nobr clickable-item" ng-click="business.published = false; businessForm.$setDirty(true)"><input type="radio" name="published" ng-model="business.published" ng-value="isNotPublished"/> Pending Review</div>-->
+
+            <div class="col-sm-3" ng-if="!userManager.canAddOrEditPOI(isAdd, business.id)">
+                <span>{{ business.published ? 'Published' : 'Not Published' }}</span>
+            </div>
+            <div class="col-sm-3" ng-if="userManager.canAddOrEditPOI(isAdd, business.id)">
+                <span class="nobr clickable-item" ng-click="business.published = true; businessForm.$setDirty(true)">
+                    <input type="radio" name="published" ng-model="business.published" ng-value="isPublished" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)"/> Published
+                </span>
+                &nbsp;|&nbsp;
+                <span class="nobr clickable-item" ng-click="business.published = false; businessForm.$setDirty(true)">
+                    <input type="radio" name="published" ng-model="business.published" ng-value="isNotPublished" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)"/> Pending Review
+                </span>
+            </div>
+
+
+
+            <div ng-if="!isAdd && editIndex" class="col-sm-3 col-sm-offset-1">
+                <button class="btn btn-default btn-sm" ng-click="previousBusiness()" ng-disabled="editIndex <= 0"><i class="glyphicon glyphicon-chevron-left"></i> Previous</button>
+                <button class="btn btn-default btn-sm" ng-click="nextBusiness()" ng-disabled="editIndex >= totalResults - 1">Next <i class="glyphicon glyphicon-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="nameInput">Name</label>
+        <div class="col-sm-10">
+            <input type="text" id="nameInput" class="form-control" ng-model="business.name" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <!-- Conditions (rokketmed) -->
+    <div class="form-group" ng-if="appConfigManager.areConditionsEnabled()">
+        <label class="col-sm-2 control-label" for="">Conditions</label>
+        <div class="col-sm-10">
+            <button ng-click="onClickEditConditions()"
+                    ng-if="!isAdd"
+                    ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)"
+                    type="button" class="btn btn-info btn-sm">Edit Conditions...</button>
+            <span class="label label-warning" ng-if="isAdd"><em>Please save this first before editing conditions.</em></span>
+        </div>
+    </div>
+
+
+    <!-- Procedures (rokketmed) -->
+    <div class="form-group" ng-if="appConfigManager.areProceduresEnabled()">
+        <label class="col-sm-2 control-label" for="">Procedures</label>
+        <div class="col-sm-10">
+            <button ng-click="onClickEditProcedures()"
+                    ng-if="!isAdd"
+                    ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)"
+                    type="button" class="btn btn-info btn-sm">Edit Procedures...</button>
+            <span class="label label-warning" ng-if="isAdd"><em>Please save this first before editing procedures.</em></span>
+        </div>
+    </div>
+
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="altNameInput">Alt Name</label>
+        <div class="col-sm-10">
+            <input type="text" id="altNameInput" class="form-control" ng-model="business.altName" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Categories</label>
+        <div class="col-sm-10">
+            <div class="well">
+                <div ng-repeat="category in categories | orderBy: 'name'">
+                    <input type="checkbox" ng-change="updateBusinessCategoriesFromTreeModel(category.id)"
+                           ng-model="catSelectionsModel[category.id]"
+                           ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">&nbsp;{{category.name}}
+                    <div ng-if="catSelectionsModel[category.id]"
+                         ng-repeat="categoryType in category.types | orderBy: 'name'">
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="checkbox"
+                               ng-model="catTypeSelectionsModel[category.id + ':' + categoryType.id]"
+                               ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)"
+                               ng-change="updateBusinessCategoriesFromTreeModel(category.id + ':' + categoryType.id)">&nbsp;{{ categoryType.name }}
+                        <div ng-if="catTypeSelectionsModel[category.id + ':' + categoryType.id]"
+                             ng-repeat="categorySubType in categoryType.subtypes | orderBy: 'name'"
+                             ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="checkbox"
+                                   ng-model="catSubTypeSelectionsModel[category.id + ':' + categoryType.id + ':' + categorySubType.id]"
+                                   ng-change="updateBusinessCategoriesFromTreeModel(category.id + ':' + categoryType.id + ':' + categorySubType.id)"
+                                   ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+                            &nbsp;{{ categorySubType.name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="lonInput">Longitude</label>
+        <div class="col-sm-2">
+            <input type="text" id="lonInput" class="form-control" ng-model="business.long" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+        <label class="col-sm-2 control-label" for="latInput">Latitude</label>
+        <div class="col-sm-2">
+            <input type="text" id="latInput" class="form-control" ng-model="business.lat" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+        <div class="col-sm-4">
+            <button type="button" class="btn btn-info btn-sm"
+                    ng-click="codeAddress()" ng-if="userManager.canAddOrEditPOI(isAdd, business.id)">
+                <span class="glyphicon glyphicon-screenshot"> </span> &nbsp;Geocode
+            </button>
+            <!--<button type="button" class="btn btn-default btn-sm" ng-click="lookupNeighborhoodOfBusinessByLatLong()"><span class="glyphicon glyphicon-screenshot"> </span> &nbsp;Neighborhood Lookup</button>-->
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="neighborhoodSelectInput">Neighborhoods</label>
+        <div class="col-sm-10">
+            {{ getNeighborhoodNamesArray() | orderBy:angular.identity | arrayNone }}<br/>
+            <button type="button" class="btn btn-default btn-sm"
+                    ng-if="userManager.canAddOrEditPOI(isAdd, business.id)"
+                    ng-click="editNeighborhoodsForBusiness('lg')"
+                    ng-disabled="!business.city || !business.state"><span class="glyphicon glyphicon-home"></span> Choose Neighborhoods
+            </button>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="addr1Input">Address 1</label>
+        <div class="col-sm-10">
+            <input type="text" id="addr1Input" class="form-control" ng-model="business.addr1" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="addr2Input">Address 2</label>
+        <div class="col-sm-10">
+            <input type="text" id="addr2Input" class="form-control" ng-model="business.addr2" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="cityInput">City</label>
+        <div class="col-sm-10">
+            <input type="text" id="cityInput" class="form-control" ng-model="business.city" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="stateInput">State</label>
+        <div class="row">
+            <div class="col-sm-5" ng-if="userManager.canAddOrEditPOI(isAdd, business.id)">
+                    <state-options id="stateInput" class="field" name="stateInput" ng-model="business.state" required></state-options>
+            </div>
+            <div class="col-sm-5" ng-if="!userManager.canAddOrEditPOI(isAdd, business.id)">
+                <span>{{ business.state }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="zipInput">Zip Code</label>
+        <div class="col-sm-4">
+            <input type="text" id="zipInput" class="form-control" ng-model="business.zip" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="phoneInput">Phone</label>
+        <div class="col-sm-10">
+            <input type="text" id="phoneInput" class="form-control" ng-model="business.phone" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="rating">Rating</label>
+        <div class="col-sm-2">
+            <input type="number" step="any" id="rating" class="form-control" ng-model="business.rating" min="0" max="5" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <!-- web links and social networking links -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="websiteInput">Web Site</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button type="button" ng-disabled="!businessHelper.isWebSiteLinkValid(business.website)"
+                            ng-click="businessHelper.handleWebSiteLinkClicked(business.website)"
+                            class="btn btn-default btn-small"
+                            ng-class="businessHelper.isWebSiteLinkValid(business.website) ? 'btn-primary' : ''">
+                        <i class="glyphicon glyphicon-new-window"></i>
+                    </button>
+                </span>
+                <input type="text" id="websiteInput" class="form-control" ng-model="business.website" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="urlFacebookInput">Facebook</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button type="button" ng-disabled="!businessHelper.isWebSiteLinkValid(business.urlFacebook)"
+                            ng-click="businessHelper.handleWebSiteLinkClicked(business.urlFacebook)"
+                            class="btn btn-default btn-small"
+                            ng-class="businessHelper.isWebSiteLinkValid(business.urlFacebook) ? 'btn-primary' : ''">
+                        <i class="glyphicon glyphicon-new-window"></i>
+                    </button>
+                </span>
+                <input type="text" id="urlFacebookInput" class="form-control" ng-model="business.urlFacebook" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="urlFoursquareInput">Foursquare</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button type="button" ng-disabled="!businessHelper.isWebSiteLinkValid(business.urlFoursquare)"
+                            ng-click="businessHelper.handleWebSiteLinkClicked(business.urlFoursquare)"
+                            class="btn btn-default btn-small"
+                            ng-class="businessHelper.isWebSiteLinkValid(business.urlFoursquare) ? 'btn-primary' : ''">
+                        <i class="glyphicon glyphicon-new-window"></i>
+                    </button>
+                </span>
+                <input type="text" id="urlFoursquareInput" class="form-control" ng-model="business.urlFoursquare" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="urlTwitterInput">Twitter</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button type="button" ng-disabled="!businessHelper.isWebSiteLinkValid(business.urlTwitter)"
+                            ng-click="businessHelper.handleWebSiteLinkClicked(business.urlTwitter)"
+                            class="btn btn-default btn-small"
+                            ng-class="businessHelper.isWebSiteLinkValid(business.urlTwitter) ? 'btn-primary' : ''">
+                        <i class="glyphicon glyphicon-new-window"></i>
+                    </button>
+                </span>
+                <input type="text" id="urlTwitterInput" class="form-control" ng-model="business.urlTwitter" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="urlYelpInput">Yelp</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button type="button" ng-disabled="!businessHelper.isWebSiteLinkValid(business.urlYelp)"
+                            ng-click="businessHelper.handleWebSiteLinkClicked(business.urlYelp)"
+                            class="btn btn-default btn-small"
+                            ng-class="businessHelper.isWebSiteLinkValid(business.urlYelp) ? 'btn-primary' : ''">
+                        <i class="glyphicon glyphicon-new-window"></i>
+                    </button>
+                </span>
+                <input type="text" id="urlYelpInput" class="form-control" ng-model="business.urlYelp" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+            </div>
+        </div>
+    </div>
+
+    <!-- END OF web links and social networking links -->
+
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="description1">Description 1</label>
+        <div class="col-sm-10">
+            <textarea id="description1" class="form-control" ng-model="business.description1" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="description2">Description 2</label>
+        <div class="col-sm-10">
+            <textarea id="description2" class="form-control" ng-model="business.description2" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="featured">Featured?</label>
+        <div class="col-sm-10">
+            <input type="checkbox" id="featured" ng-model="business.featured" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+
+    <!-- dynamic classification fields -->
+    <div ng-repeat="classification in classifications">
+
+        <div class="form-group" ng-if="isListOrHierarchy(classification) && isClassificationInputEnabled(classification.id)">
+            <label class="col-sm-2 control-label" for="">{{ classification.name }}</label>
+            <div class="col-sm-10">
+                <button ng-click="onClickEditMultipleClassificationProperty(classification.id, 'class_' + classification.id + '_Ids', 1, 'md')"
+                        type="button" class="btn btn-info btn-sm"
+                        ng-if="userManager.canAddOrEditPOI(isAdd, business.id)">Choose Options...</button>
+                <ul>
+                    <li ng-repeat="val in getClassificationTypeNames(classification.id, business['class_' + classification.id + '_Ids'])">{{ val }}</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="form-group" ng-if="classification.dataType === 'boolean' && isClassificationInputEnabled(classification.id)">
+            <label class="col-sm-2 control-label" for="{{ classification.id }}">{{ classification.name }}</label>
+            <div class="col-sm-10">
+                <input type="checkbox" id="{{ classification.id }}" ng-model="business['class_' + classification.id + '_flag']" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+            </div>
+        </div>
+
+        <div class="form-group" ng-if="(classification.dataType === 'string' || classification.dataType === 'integer' || classification.dataType === 'float') && isClassificationInputEnabled(classification.id)">
+            <label class="col-sm-2 control-label" for="{{ classification.id }}">{{ classification.name }}</label>
+            <div class="col-sm-10">
+                <input type="text" id="{{ classification.id }}" class="form-control" ng-model="business['class_' + classification.id + '_' + classification.dataType]" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+            </div>
+        </div>
+    </div>
+
+<!--
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="costDesc">Cost</label>
+        <div class="col-sm-10">
+            <input type="text" id="costDesc" class="form-control" ng-model="business.costDesc" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="acceptsReservations">Reservations?</label>
+        <div class="col-sm-10">
+            <input type="checkbox" id="acceptsReservations" ng-model="business.acceptsReservations" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group" ng-if="business.acceptsReservations">
+        <label class="col-sm-2 control-label" for="reservationUrl">Reservation URL</label>
+        <div class="col-sm-10">
+            <input type="text" id="reservationUrl" class="form-control" ng-model="business.reservationUrl" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group" ng-if="business.acceptsReservations">
+        <label class="col-sm-2 control-label" for="reservationUrlMobile">Reservation URL (Mobile)</label>
+        <div class="col-sm-10">
+            <input type="text" id="reservationUrlMobile" class="form-control" ng-model="business.reservationUrlMobile" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="catering">Caters?</label>
+        <div class="col-sm-10">
+            <input type="checkbox" id="catering" ng-model="business.catering" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="delivery">Delivers?</label>
+        <div class="col-sm-10">
+            <input type="checkbox" id="delivery" ng-model="business.delivery" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="menu">Menu?</label>
+        <div class="col-sm-10">
+            <input type="checkbox" id="menu" ng-model="business.menu" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group" ng-if="business.menu">
+        <label class="col-sm-2 control-label" for="menuUrl">Menu URL</label>
+        <div class="col-sm-10">
+            <input type="text" id="menuUrl" class="form-control" ng-model="business.menuUrl" ng-readonly="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="outdoorSeating">Outdoor Seating?</label>
+        <div class="col-sm-10">
+            <input type="checkbox" id="outdoorSeating" ng-model="business.outdoorSeating" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="takeout">Takeout?</label>
+        <div class="col-sm-10">
+            <input type="checkbox" id="takeout" ng-model="business.takeout" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="tv">TV?</label>
+        <div class="col-sm-10">
+            <input type="checkbox" id="tv" ng-model="business.tv" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="wifi">WiFi?</label>
+        <div class="col-sm-10">
+            <input type="checkbox" id="wifi" ng-model="business.wifi" ng-disabled="!userManager.canAddOrEditPOI(isAdd, business.id)">
+        </div>
+    </div>
+-->
+
+    <!-- ToDo: hours -->
+    <!-- ToDo: socialData -->
+    <!-- ToDo: editorial -->
+
+    <br/>
+
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4 readonly-details">
+            Created on: {{ business.createdAt | date: 'yyyy-MM-dd HH:mm' }}
+            <br/>
+            Updated at: {{ business.updatedAt | date: 'yyyy-MM-dd HH:mm' }}
+        </div>
+        <div class="col-md-4 readonly-details">
+            Source: {{ business.import_src }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="btn btn-primary" ng-click="saveButtonClicked()" ng-if="userManager.canAddOrEditPOI(isAdd, business.id)"><i class="glyphicon glyphicon-floppy-disk"></i> {{saveButtonText}}</button>
+            <button ng-show="!isAdd" class="btn btn-danger" ng-if="userManager.canAddOrEditPOI(isAdd, business.id)" ng-really-click="deleteButtonClicked()"><i class="glyphicon glyphicon-remove"></i> Delete</button>
+        </div>
+    </div>
+
+    <br/>
+    <br/>
+
+</form>
+
+
+<h3>Photos</h3>
+
+<div id="noPhotosForYouCuzThisIsAnAdd" ng-if="isAdd">
+    <br/>
+    <div class="alert alert-warning">
+        <h5 ng-if="isAdd">Please save this business first before trying to add photos.</h5>
+    </div>
+    <br/>
+    <br/>
+</div>
+
+
+<div id="photosSectionWrapper" ng-if="!isAdd">
+
+<br/>
+<br/>
+
+
+
+<!------------------- image uploader ----------->
+<div class="well" ng-if="userManager.canAddOrEditPOI(isAdd, business.id)">
+    <form name="imageUploadForm" class="form-horizontal" role="form">
+        <h4>Upload Image</h4>
+        <div class="form-group col-sm-offset-1">
+            <label class="col-sm-2 control-label" for="imageName">Title</label>
+            <div class="col-sm-3">
+                <input type="text" id="imageName" class="form-control" ng-model="newImage.name" placeholder="optional title">
+            </div>
+        </div>
+
+        <div class="form-group col-sm-offset-1">
+            <label class="col-sm-2 control-label" for="imageDesc">Description</label>
+            <div class="col-sm-8">
+                <input type="text" id="imageDesc" class="form-control" ng-model="newImage.description" placeholder="optional description">
+            </div>
+        </div>
+
+
+        <div class="form-group col-sm-offset-1">
+            <label class="col-sm-2 control-label" for="fileUpload">File</label>
+            <div class="col-sm-8">
+                <input type="file" class="btn btn-default btn-sm" id="fileUpload" ng-file-select="onFileSelect($files)" >
+            </div>
+        </div>
+
+        <br/>
+        <div class="col-sm-offset-1" style="padding-top:0.5em" ng-if="isUploadInProgress">
+            <button class="btn btn-danger btn-sm" ng-click="upload.abort()">Cancel Upload</button>
+        </div>
+
+        <alert ng-repeat="alert in uploadAlerts" type="{{alert.type}}" close="closeUploadAlert($index)">{{alert.msg}}</alert>
+    </form>
+</div>
+
+<br/>
+<br/>
+<br/>
+
+<div class="alert alert-info" ng-if="photos.length === 0">
+<h5>This business does not have any photos yet.</h5>
+</div>
+
+    <!-- Button bar for image actions -->
+    <div class="center-block text-center" ng-if="photos.length > 0">
+        <strong>Image Actions:</strong>&nbsp;&nbsp;
+        <button type="button" class="btn btn-sm btn-danger"
+                ng-if="userManager.canAddOrEditPOI(isAdd, business.id)"
+                ng-really-click="businessHelper.deleteImage(business, photos[_Index].id, refreshPhotos)"
+                ng-really-message="Are you sure you want to delete this image?">
+            <i class="glyphicon glyphicon-remove"></i> Delete
+        </button>
+        &nbsp;
+        <button type="button" class="btn btn-sm btn-primary"
+                ng-if="userManager.canAddOrEditPOI(isAdd, business.id)"
+                ng-show="!((business.primaryImageId && business.primaryImageId === photos[_Index].id) || photos[_Index].is_system_default)"
+                ng-click="businessHelper.setImageAsPrimary(business, photos[_Index].id, refreshPhotos)">
+            <i class="glyphicon glyphicon-star"></i> Set As Default
+        </button>
+    </div>
+
+    <!--<pre class="tiny-debug">{{ photos[_Index] | json }}</pre>-->
+    <!--<pre class="tiny-debug">{{ photos | json }}</pre>-->
+
+    <div class="alert alert-info" style="margin-top: 0.5em" ng-if="business.primaryImageId && business.primaryImageId === photos[_Index].id">
+        <span class="glyphicon glyphicon-star"></span> This is the primary image.
+    </div>
+
+<!-- slider container -->
+<div class="container slider" ng-if="photos.length > 0">
+
+    <!-- enumerate all photos -->
+    <img ng-repeat="photo in photos" class="slide" ng-swipe-right="showPrev()" ng-swipe-left="showNext()" ng-show="isActive($index)" ng-src="{{photo.src}}" />
+
+    <!-- prev / next controls -->
+    <a class="arrow prev" ng-click="showPrev()"></a>
+    <a class="arrow next" ng-click="showNext()"></a>
+
+    <!-- extra navigation controls -->
+    <ul class="nav-img">
+        <li ng-repeat="photo in photos" ng-class="{'active':isActive($index)}">
+            <img ng-src="{{photo.src}}" alt="{{photo.desc}}" title="{{photo.desc}}" ng-click="showPhoto($index);" />
+        </li>
+    </ul>
+
+</div>
+
+<br/>
+<br/>
+<br/>
+</div> <!-- photos wrapper div -->
+
+<accordion close-others="oneAtATime">
+    <accordion-group is-open="status.open">
+        <accordion-heading>
+            <div class="debug-accordion">
+                <i class="glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i> Debug info
+            </div>
+        </accordion-heading>
+        Business JSON:
+        <pre class="tiny-debug" ng-bind="business | json"></pre>
+        <br/>
+        Photos JSON:
+        <pre class="tiny-debug" ng-bind="rawPhotos | json"></pre>
+    </accordion-group>
+</accordion>
+
+
+
+<!-- modal popup for NEW neighborhood selection -->
+
+<script type="text/ng-template" id="business-neighborhoodsGeo-modal.html">
+    <div class="modal-header">
+        <div class="row">
+            <div class="col-sm-5 col-md-5">
+                <h4 class="modal-title">Choose Neighborhoods</h4>
+            </div>
+            <div class="col-sm-2 col-md-2 col-sm-offset-3 col-md-offset-3 pull-right">
+                <button class="btn btn-primary btn-sm" ng-click="ok()">Save</button>
+                <button class="btn btn-warning btn-sm" ng-click="cancel()">X</button>
+            </div>
+
+        </div>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <!-- neighborhood selection -->
+
+        <!--<pre class="tiny-debug">{{ availableNeighborhoods }}</pre>-->
+
+        <span ng-if="!availableNeighborhoods || availableNeighborhoods.length === 0">No neighborhoods have been defined for {{business.city}}, {{business.state}}</span>
+
+        <table class="table table-condensed table-striped" ng-if="availableNeighborhoods && availableNeighborhoods.length > 0">
+            <tr ng-repeat="n1 in availableNeighborhoods">
+                <td><input type="checkbox" ng-model="n1.selected" ng-change="handleNeighborhoodSelectionChanged(n1)"> {{ n1.name }} <em>{{ n1.selected ? '' : (n1.children ? '(' + n1.children.length + ')' : '') }}</em></td>
+                <td>
+
+                    <table ng-if="n1.selected" class="table table-condensed">
+                    <!--<table  class="table table-condensed">-->
+                        <tr ng-repeat="n2 in n1.children" ng-class="n1.selected ? '' : 'disabled-neighborhood-selection'">
+                            <td><input type="checkbox" ng-disabled="!n1.selected" ng-model="n2.selected"> {{ n2.name }} <em>{{ n2.selected ? '' : (n2.children ? '(' + n2.children.length + ')' : '') }}</em></td>
+                            <td>
+                                <table ng-if="n2.selected" class="table table-condensed">
+                                <!--<table class="table table-condensed">-->
+                                    <tr ng-repeat="n3 in n2.children" ng-class="n2.selected ? '' : 'disabled-neighborhood-selection'">
+                                        <td><input type="checkbox" ng-disabled="!n2.selected" ng-model="n3.selected"> {{ n3.name }} <em>{{ n3.selected ? '' : (n3.children ? '(' + n3.children.length + ')' : '') }}</em></td>
+                                        <td>
+
+                                            <table ng-if="n3.selected" class="table table-condensed">
+                                                <tr ng-repeat="n4 in n3.children" ng-class="n3.selected ? '' : 'disabled-neighborhood-selection'">
+                                                    <td><input type="checkbox" ng-disabled="!n3.selected" ng-model="n4.selected"> {{ n4.name }} <em>{{ n4.selected ? '' : (n4.children ? '(' + n4.children.length + ')' : '') }}</em></td>
+                                                    <td>
+                                                        <table ng-if="n4.selected" class="table table-condensed">
+                                                            <tr ng-repeat="n5 in n4.children">
+                                                                <td><input type="checkbox" ng-disabled="!n4.selected" ng-model="n4.selected"> {{ n5.name }} <em>{{ n5.selected ? '' : (n5.children ? '(' + n5.children.length + ')' : '') }}</em></td>
+                                                                <!--<td>-->
+                                                                    <!--&nbsp;-->
+                                                                <!--</td>-->
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                </td>
+            </tr>
+        </table>
+
+        <!--<pre style="font-size: 0.6em">{{availableNeighborhoods | json}}</pre>-->
+        <!--<pre style="font-size: 0.7em">{{business | json}}</pre>-->
+        <!-- ---------------------------------------------------------------------------- -->
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">Save</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<!-- modal popup for generic classification selection -->
+
+<script type="text/ng-template" id="business-generic-classification-modal.html">
+    <div class="modal-header">
+        <div class="row">
+            <div class="col-sm-5 col-md-5">
+                <h4 class="modal-title">Choose Values for {{ classificationDisplayName }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <!-- value selection -->
+        <table class="table table-condensed table-striped">
+            <thead>
+            <tr><th colspan="{{numberOfColumnsOfValues}}">{{ classificationDisplayName }}</th></tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="availableValueRow in availableValues">
+                <td ng-repeat="colNum in getNumberArray(numberOfColumnsOfValues)">
+                    <input type="checkbox" ng-checked="shouldBeChecked(availableValueRow[colNum].id)" ng-model="selectableValuesModel[availableValueRow[colNum].id]">
+                    {{ availableValueRow[colNum].name }}
+                </td>
+            </tr>
+            <tr ng-if="availableValues.length === 0"><td colspan="2">No values exist for {{ classificationDisplayName }}.  Please add some in the classifications section of the admin tool.</td></tr>
+            </tbody>
+        </table>
+
+        <!--<pre style="font-size: 0.7em">{{selectableValuesModel | json}}</pre>-->
+        <!--<pre style="font-size: 0.7em">{{business | json}}</pre>-->
+        <!-- ---------------------------------------------------------------------------- -->
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">Save</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+<div id="map" style="display: none; width:10px; height:10px"></div>
+
+<div id="infoOverlay">
+    <div id="infoOverlayDetails"></div>
+</div>
+
+
+
+
+
+
+
+
+<!-- modal popup for editing conditions -->
+
+<script type="text/ng-template" id="business-conditions-modal.html">
+    <div class="modal-header">
+        <div class="row">
+            <div class="col-sm-5 col-md-5">
+                <h4 class="modal-title">Edit Conditions</h4>
+            </div>
+        </div>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <!-- value selection -->
+        <table class="table table-condensed table-striped">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Provider Price</th>
+                <th>Provider Description</th>
+                <th>Publish?</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="value in compositeDataModel">
+                <td>{{value.name}}</td>
+                <td>{{value.description}}</td>
+                <td><input type="text" size="10" ng-model="value.providerPrice"></td>
+                <td><input type="text" size="45" ng-model="value.providerDescription"></td>
+                <td><input type="checkbox" ng-model="value.published"></td>
+            </tr>
+            <tr ng-if="availableValues.length === 0"><td colspan="5">No conditions have been added to the system yet.</td></tr>
+            </tbody>
+        </table>
+
+        <!--<pre style="font-size: 0.7em">{{compositeDataModel | json}}</pre>-->
+        <!-- ---------------------------------------------------------------------------- -->
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">Save</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+
+
+
+
+
+<!-- modal popup for editing procedures -->
+
+<script type="text/ng-template" id="business-procedures-modal.html">
+    <div class="modal-header">
+        <div class="row">
+            <div class="col-sm-5 col-md-5">
+                <h4 class="modal-title">Edit Procedures</h4>
+            </div>
+        </div>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <!-- value selection -->
+        <table class="table table-condensed table-striped">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Provider Price</th>
+                <th>Provider Description</th>
+                <th>CPT Code</th>
+                <th>Publish?</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="value in compositeDataModel">
+                <td>{{value.name}}</td>
+                <td>{{value.description}}</td>
+                <td><input type="text" size="10" ng-model="value.providerPrice"></td>
+                <td><input type="text" size="45" ng-model="value.providerDescription"></td>
+                <td>{{value.cptCode}}</td>
+                <td><input type="checkbox" ng-model="value.published"></td>
+            </tr>
+            <tr ng-if="availableValues.length === 0"><td colspan="6">No procedures have been added to the system yet.</td></tr>
+            </tbody>
+        </table>
+
+        <!--<pre style="font-size: 0.7em">{{compositeDataModel | json}}</pre>-->
+        <!-- ---------------------------------------------------------------------------- -->
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">Save</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>

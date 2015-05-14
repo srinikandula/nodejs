@@ -1,0 +1,114 @@
+<legend>{{ headline }}</legend>
+
+
+<!--<pre style="font-size: 0.7em">-->
+<!--{{ neighborhoods }}-->
+<!--</pre>-->
+
+<div class="toolbar-button-div pull-right">
+    <button type="button" class="btn btn-sm btn-primary" ng-click="addStateCityAndNeigh()"><span class="glyphicon glyphicon-plus"></span> Add City and/or Neighborhood</button>
+</div>
+
+<br/>
+
+<table class="table table-bordered table-condensed table-hover table-striped" ng-table="cityContentTableParams">
+    <tr ng-repeat="neighborhood in neighborhoods">
+        <td data-title="'State'" sortable="'stateCity'">{{ neighborhood.state }}</td>
+        <td data-title="'City'" sortable="'city'">{{ neighborhood.city }}</td>
+        <td data-title="'#'">{{neighborhood.neighborhoods.length || 0}}</td>
+        <td data-title="'Neighborhoods'">{{ formatNeighborhoodsList(neighborhood) }}</td>
+        <td data-title="'Actions'">
+
+            <!-- Single button -->
+            <div class="btn-group" dropdown is-open="status.isopen">
+                <button type="button" class="btn btn-primary btn-xs dropdown-toggle">
+                    <span class="glyphicon glyphicon-cog"></span> Actions <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="javascript:void(0)" ng-click="addNeighborhoodToExistingCity(neighborhood)"><span class="glyphicon glyphicon-plus"></span> Add neighborhood</a></li>
+                    <li class="divider"></li>
+                    <li ng-repeat="neigh in neighborhood.neighborhoods" ng-if="neigh !== GLOBAL_PENDING_NEIGHBORHOOD_NAME"><a href="javascript:void(0)" ng-click="deleteNeighborhoodFromCity(neighborhood.id, neigh)"><span class="glyphicon glyphicon-remove"></span> Delete {{ neigh }}</a></li>
+                </ul>
+            </div>
+
+        </td>
+    </tr>
+</table>
+
+
+
+<!-- modal popup for adding city/state/neighborhood -->
+
+
+<!--<div>-->
+<script type="text/ng-template" id="neighborhood-add-city-state-modal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Add Neighborhoods to a City</h3>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <form name="cityStateNeighForm" class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-sm-3 control-label" for="modalStateInput">State</label>
+                <div class="row">
+                    <div class="col-sm-7">
+                        <state-options id="modalStateInput" class="field" name="modalStateInput" ng-model="neighborhood.state" required></state-options>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label" for="cityInput">City</label>
+                <div class="col-sm-7">
+                    <input type="text" id="cityInput" class="form-control" ng-model="neighborhood.city">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label" for="modalNeighInput">Neighborhood <em>(optional)</em></label>
+                <div class="col-sm-7">
+                    <input type="text" id="modalNeighInput" class="form-control" ng-model="neighborhood.neighborhood">
+                </div>
+            </div>
+        </form>
+        <!-- ---------------------------------------------------------------------------- -->
+
+        <!--<pre style="font-size: 0.6em">{{ neighborhood | json }}</pre>-->
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()" ng-disabled="!isInputValid()">Add</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+
+
+<!-- modal popup for adding neighborhood to existing city/state -->
+
+
+<script type="text/ng-template" id="add-neighborhood-to-city-state-modal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Add Neighborhood to {{ neighborhood.city }}, {{ neighborhood.state }}</h3>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <form name="addNeighToCityForm" role="form">
+
+            <div class="form-group">
+                <label for="modalAddNeighInput">Neighborhood</label>
+                <input type="text" id="modalAddNeighInput" class="form-control" ng-model="neighborhood.neighborhood">
+            </div>
+        </form>
+        <!-- ---------------------------------------------------------------------------- -->
+
+        <!--<pre style="font-size: 0.6em">{{ neighborhood | json }}</pre>-->
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()" ng-disabled="!isInputValid()">Add</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>

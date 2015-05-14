@@ -1,0 +1,1 @@
+db.businesses.update({}, {$set: {"published" : true}}, {multi: true});

@@ -1,0 +1,101 @@
+<legend>{{ headline }}</legend>
+
+<br/>
+
+<div class="row filter-bar">
+
+    <div class="col-md-1 col-sm-1 small-text vcenter">
+        <span>Total: {{ businessesCount }}</span>
+    </div>
+    <div class="col-md-2 col-sm-2 vcenter">
+        <select id="categoryId"
+                ng-model="filterCategoryId"
+                ng-options="category.id as category.name for category in categories"
+                class="form-control input-sm">
+            <option value="">-- Category --</option>
+        </select>
+    </div>
+
+    <div class="col-md-3 col-sm-3 vcenter">
+        <select id="publishedFilter"
+                ng-model="publishedFilterValue"
+                ng-options="opt.id as opt.desc for opt in publishedOptions"
+                class="form-control input-sm">
+        </select>
+    </div>
+
+    <div class="col-md-3 col-sm-3 vcenter">
+        <div class="input-group input-group-sm">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+            <input type="text" class="form-control" placeholder="Search by Name" ng-model="nameSearch">
+        </div>
+    </div>
+
+    <div class="col-md-1 col-sm-1 vcenter">
+        <button class="btn btn-small btn-default" ng-click="applyFilter()">Go</button>
+    </div>
+
+    <div class="col-md-1 col-sm-1 vcenter">
+        <a class="btn btn-primary btn-sm" href="#/businesses-new" ng-if="userManager.canAddPOI()"><span class="glyphicon-plus">&nbsp;</span>Add Business</a>
+    </div>
+</div>
+
+<div ng-if="!isViewForMissingFields">
+    <table class="table table-bordered table-condensed table-hover table-striped"
+           ng-table="businessContentTableParams">
+        <tr ng-click="editBusiness(business.id, $index)" class="clickable-item" ng-repeat="business in businesses"
+            ng-if="!isViewForMissingFields">
+            <td data-title="'Name'" sortable="'name'">{{ business.name }}</td>
+            <td data-title="'Address'" sortable="'addr1'">{{ business.addr1 }}</td>
+            <td data-title="'City'" class="nobr" sortable="'city'">{{ business.city }}</td>
+            <td data-title="'State'" sortable="'state'">{{ business.state }}</td>
+            <td data-title="'Category'" sortable="'categoryDisplayValue'">{{ business.categoryDisplayValue }}</td>
+            <td data-title="'Lon/Lat'" sortable="'long'" class="lat-lon-cell">
+                <a ng-href="{{ getHrefForGoogleMapWithLonLat(business) }}" target="_blank">{{ formatCoords(business) }}</a>
+            </td>
+            <td data-title="'Neighborhoods'" sortable="'neighborhoodsDisplayValue'">{{ business.neighborhoodsDisplayValue }}</td>
+            <td data-title="'Updated At'" sortable="'updatedAt'" class="nobr">{{ business.updatedAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+        </tr>
+    </table>
+</div>
+
+
+<div ng-if="isViewForMissingFields">
+    <table class="table table-bordered table-condensed table-hover table-striped"
+           ng-table="businessContentTableParams">
+        <tr ng-click="editBusiness(business.id, $index)" class="clickable-item" ng-repeat="business in businesses" ng-if="isViewForMissingFields">
+            <td data-title="'Name'" sortable="'name'">{{ business.name }}</td>
+            <td data-title="'Address'" sortable="'addr1'">{{ business.addr1 }}</td>
+            <td data-title="'City'" class="nobr" sortable="'city'">{{ business.city }}</td>
+            <td data-title="'State'" sortable="'state'">{{ business.state }}</td>
+            <td data-title="'# of Sub-Cats'" sortable="'subCatCount'">{{ business.subCatCount }}</td>
+            <td data-title="'Rating'" sortable="'rating'">{{ business.rating }}</td>
+            <td data-title="'Facebook'" sortable="'urlFacebook'">{{ business.urlFacebook && business.urlFacebook !== '' ? 'Yes' : 'No'}}</td>
+            <td data-title="'Twitter'" sortable="'urlTwitter'">{{ business.urlTwitter && business.urlTwitter !== ''  ? 'Yes' : 'No'}}</td>
+            <td data-title="'Foursquare'" sortable="'urlFoursquare'">{{ business.urlFoursquare && business.urlFoursquare !== ''  ? 'Yes' : 'No'}}</td>
+            <td data-title="'Yelp'" sortable="'urlYelp'">{{ business.urlYelp && business.urlYelp !== ''  ? 'Yes' : 'No'}}</td>
+            <td data-title="'# of Custom Images'" sortable="'nonDefaultImageCount'">{{ business.nonDefaultImageCount }}</td>
+        </tr>
+    </table>
+</div>
+
+<!--  http://maps.google.com/maps?q=18.77362+98.98803 -->
+
+
+<!--
+'name',
+'altName',
+'addr1',
+'addr2',
+'city',
+'state',
+'zip',
+'phone',
+'city',
+'website',
+'socialLinks',  // array
+'hours',        // 7-element array
+'socialData',
+'editorial'     // should I put this here?
+
+-->

@@ -1,0 +1,148 @@
+<legend>{{ headline }}</legend>
+
+<form name="userForm" class="form-horizontal" role="form" unsaved-warning-form>
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="usernameInput">Username</label>
+        <div class="col-sm-10">
+            <input type="text" id="usernameInput" class="form-control" ng-model="user.username" ng-required ng-readonly="!isAdd">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="firstNameInput">First Name</label>
+        <div class="col-sm-10">
+            <input type="text" id="firstNameInput" class="form-control" ng-model="user.givenName" ng-required ng-readonly="!isAdd">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label" for="lastNameInput">Last Name</label>
+        <div class="col-sm-10">
+            <input type="text" id="lastNameInput" class="form-control" ng-model="user.surname" ng-readonly="!isAdd">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Groups</label>
+        <div class="col-sm-10">
+            <p class="form-control-static">
+            {{ user.groupNames.sort().join(', ') }}
+            </p>
+        </div>
+    </div>
+
+    <span us-spinner spinner-key="spinner-1"></span>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Associated Businesses</label>
+        <div class="col-sm-10">
+            <button class="btn btn-default" type="button" ng-click="handleAssociateBusinessesClicked('lg')">Select Businesses</button>
+            <br/>
+            <ul class="list-unstyled">
+                <li ng-repeat="business in selectedBusinesses()">
+                    <span class="badge glyphicon glyphicon-remove clickable-item"
+                          ng-click="disassociateBusiness(business.id)">
+                    </span>
+                    {{ business.displayName }}
+                </li>
+            </ul>
+        </div>
+        <!--
+        <div class="col-sm-5">
+            <select id="businessInput" class="form-control"
+                    size="10" multiple
+                    ng-model="user.businessIds"
+                    ng-options="business.id as business.displayName for business in businessesMinimal">
+                <option value="">--- Choose Business ---</option>
+            </select>
+        </div>
+        -->
+    </div>
+
+    <br/>
+
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4 readonly-details">
+            Created at: {{user.customData.createdAt | date: 'yyyy-MM-dd HH:mm' }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <button class="btn btn-primary" ng-click="saveButtonClicked()"><i class="glyphicon glyphicon-floppy-disk"></i> {{isAdd ? 'Add' : 'Save'}}</button>
+            <!--<button ng-show="!isAdd" class="btn btn-danger" ng-click="deleteButtonClicked()"><i class="glyphicon glyphicon-remove"></i> Delete</button>-->
+        </div>
+    </div>
+
+    <br/>
+    <br/>
+
+</form>
+
+
+<br/>
+<br/>
+<br/>
+
+
+<accordion close-others="oneAtATime">
+    <accordion-group is-open="status.open">
+        <accordion-heading>
+            <div class="debug-accordion">
+                <i class="glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i> Debug info
+            </div>
+        </accordion-heading>
+        <pre class="tiny-debug" ng-bind="user | json"></pre>
+    </accordion-group>
+</accordion>
+
+
+
+<!-- modal popup for associating businesses -->
+
+<script type="text/ng-template" id="associated-businesses-modal.html">
+    <div class="modal-header">
+        <div class="row">
+            <div class="col-sm-5 col-md-5">
+                <h4 class="modal-title">Associate Businesses</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4 pull-right">
+                <button class="btn btn-primary" ng-click="ok()">Ok</button>
+                <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <table class="table table-condensed table-striped">
+            <thead>
+            <tr>
+                <th>Selected?</th>
+                <th>Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="business in businessList">
+                <td><input type="checkbox" ng-model="business.selected"></td>
+                <td>{{business.displayName}}</td>
+            </tr>
+            <tr ng-if="businessList.length === 0"><td colspan="5">No businesses were found.</td></tr>
+            </tbody>
+        </table>
+
+        <!-- ---------------------------------------------------------------------------- -->
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">Ok</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+
+
+<div id="infoOverlay">
+    <div id="infoOverlayDetails"></div>
+</div>

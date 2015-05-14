@@ -1,0 +1,198 @@
+
+
+
+<legend>{{ headline }}</legend>
+
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-8" style="padding-bottom: 3px">
+            <input type="text" size="30" ng-model="searchCriteria.text">
+            <button class="btn btn-primary btn-sm" ng-click="handleSearchButtonClick()">Search</button>
+        <div class="pull-right">
+            <input id="address" type="text" value="Manhattan, NY">
+            <input type="button" class="btn btn-default btn-xs" value="Geocode" ng-click="codeAddress()">
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-8">
+        <div id="map"></div>
+        <br/>
+        <div ng-if="poiDetails">
+            <!-- import button -->
+            <table class="table table-condensed table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>POI Details</th>
+                    <th><div class="pull-right"><button type="button" ng-click="importPOI()" class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-plus"></span> Import this POI</button></div></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Name</td>
+                    <td>{{ transformedBusiness.name }}</td>
+                </tr>
+
+                <tr>
+                    <td>Lat, Long</td>
+                    <td>{{ transformedBusiness.lat }}, {{ transformedBusiness.long }}</td>
+                </tr>
+
+                <tr>
+                    <td>Neighborhoods</td>
+                    <td>{{ transformedBusiness.neighborhoods }}</td>
+                </tr>
+
+                <tr>
+                    <td>Address 1</td>
+                    <td>{{ transformedBusiness.addr1 }}</td>
+                </tr>
+
+                <tr>
+                    <td>City</td>
+                    <td>{{ transformedBusiness.city }}</td>
+                </tr>
+
+                <tr>
+                    <td>State</td>
+                    <td>{{ transformedBusiness.state }}</td>
+                </tr>
+
+                <tr>
+                    <td>Zip</td>
+                    <td>{{ transformedBusiness.zip }}</td>
+                </tr>
+
+                <tr>
+                    <td>Phone</td>
+                    <td>{{ transformedBusiness.phone }}</td>
+                </tr>
+
+                <tr>
+                    <td>Web&nbsp;Site</td>
+                    <td><a href="{{ transformedBusiness.website }}" target="_blank">{{ transformedBusiness.website }}</a></td>
+                </tr>
+
+                <tr>
+                    <td>Description&nbsp;1</td>
+                    <td>{{ transformedBusiness.description1 }}</td>
+                </tr>
+
+                <tr>
+                    <td>Description&nbsp;2</td>
+                    <td>{{ transformedBusiness.description2 }}</td>
+                </tr>
+
+                <tr>
+                    <td>Cost</td>
+                    <td>{{ transformedBusiness.cost }}</td>
+                </tr>
+
+                <tr>
+                    <td>Rating</td>
+                    <td>{{ transformedBusiness.rating }}</td>
+                </tr>
+
+
+                <tr>
+                    <td> Categories</td>
+                    <td>
+
+                        <div class="well">
+                            <div ng-repeat="category in categories | orderBy: 'name'">
+                                <input type="checkbox" ng-change="updateBusinessCategoriesFromTreeModel(category.id)" ng-model="catSelectionsModel[category.id]">&nbsp;{{category.name}}
+                                <div ng-if="catSelectionsModel[category.id]" ng-repeat="categoryType in category.types | orderBy: 'name'">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" ng-model="catTypeSelectionsModel[category.id + ':' + categoryType.id]" ng-change="updateBusinessCategoriesFromTreeModel(category.id + ':' + categoryType.id)">&nbsp;{{ categoryType.name }}
+                                    <div ng-if="catTypeSelectionsModel[category.id + ':' + categoryType.id]"
+                                         ng-repeat="categorySubType in categoryType.subtypes | orderBy: 'name'">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="checkbox"
+                                               ng-model="catSubTypeSelectionsModel[category.id + ':' + categoryType.id + ':' + categorySubType.id]"
+                                               ng-change="updateBusinessCategoriesFromTreeModel(category.id + ':' + categoryType.id + ':' + categorySubType.id)">&nbsp;{{ categorySubType.name }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td>Hours</td>
+                    <td class="hours-of-op">{{ transformedBusiness.openingHours | json }}</td>
+                </tr>
+
+                </tbody>
+            </table>
+
+
+            <accordion close-others="oneAtATime" ng-if="poiDetails">
+                <accordion-group is-open="status.open">
+                    <accordion-heading>
+                        <div class="debug-accordion">
+                            <i class="glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
+                            Raw POI Details
+                        </div>
+                    </accordion-heading>
+                    <pre class="tiny-debug" ng-bind="poiDetails | json"></pre>
+                </accordion-group>
+            </accordion>
+
+        </div>
+
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4">
+        <div style="padding-bottom: 4px">
+            <span>Search Results ({{ searchResults ? searchResults.length : 0 }})</span>
+            <div class="pull-right" ng-if="anyPOIsSelected()">
+                <button type="button" ng-click="importSelected()" ng-disabled="importAllDisabled()" class="btn btn-xs btn-primary"><i class="glyphicon glyphicon-plus"></i> Import Selected</button>
+            </div>
+        </div>
+
+
+        <ul class="list-group" >
+            <li ng-repeat="poi in searchResults | limitTo: 60" class="list-group-item">
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td style="border-right: 1px #aaa solid; padding-right: 1em"><input type="checkbox" ng-model="poi.selected" ng-if="canBeImported(poi.place_id)" ng-click="handlePoiResultCheckboxClicked(poi.place_id)"><span ng-if="!canBeImported(poi.place_id)" class="glyphicon glyphicon-check"></span></td>
+                        <td ng-click="handlePoiResultClicked(poi.place_id)" class="clickable-item" style="padding-left: 1em;">
+                            <h4 class="list-group-item-heading">{{ poi.name }}</h4>
+                            <p class="list-group-item-text">{{ poi.formatted_address }}</p>
+                        </td>
+                    </tr>
+                    <tr ng-if="poi.possibleDuplicates.length > 0">
+                        <td>&nbsp;</td>
+                        <td style="font-size: 0.8em">
+                            <div class="alert alert-warning">
+                                <strong>{{ poi.possibleDuplicates.length }} possible duplicate(s):</strong><br/>
+                                <ul>
+                                    <li ng-repeat="dupe in poi.possibleDuplicates"><a ng-href="#/businesses/{{dupe.id}}" target="_blank">{{ dupe.name }}</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+<br/>
+<br/>
+
+<accordion close-others="oneAtATime" ng-if="searchResults">
+    <accordion-group is-open="status.open">
+        <accordion-heading>
+            <div class="debug-accordion">
+                <i class="glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
+                Raw Search Results
+            </div>
+        </accordion-heading>
+        <pre class="tiny-debug" ng-bind="searchResults | json"></pre>
+    </accordion-group>
+</accordion>
+
+

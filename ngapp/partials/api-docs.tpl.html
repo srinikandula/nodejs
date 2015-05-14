@@ -1,0 +1,287 @@
+<legend>{{ headline }}</legend>
+
+
+<div class="alert alert-info">
+    <h4>REST API</h4>
+    <strong>Very important</strong>: All API calls should be prefixed with <code>/api/v1</code>.
+</div>
+
+<div class="row">
+    <div class="alert col-md-12 bg-primary"><h5>Categories</h5></div>
+</div>
+    <div class="well">
+        Categories (aka classifications) are hierarchical objects.<br/>
+        A <strong>category</strong> can have 0 or more <strong>category types</strong>.<br/>
+        A <strong>category type</strong> can have 0 or more <strong>category sub-types</strong>.
+    </div>
+
+
+
+<table class="table table-condensed table-bordered">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>URL</th>
+            <th>Notes</th>
+            <th>Parameters</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="info in apiInfo.categories">
+            <td>{{ info.method }}</td>
+            <td>{{ info.url }}</td>
+            <td>{{ info.notes }}</td>
+            <td>
+                <table class="table table-condensed" ng-if="info.parameters">
+                    <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+                    <tbody><tr ng-repeat="param in info.parameters"><td>{{ param.name }}</td><td>{{ param.type }}</td><td>{{ param.description }}</td></tr></tbody>
+                </table>
+                <span ng-if="info.parameters">-</span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+<br/>
+<br/>
+<br/>
+
+<div class="row">
+    <div class="alert col-md-12 bg-primary"><h5>Businesses</h5></div>
+</div>
+
+    <table class="table table-condensed table-bordered">
+        <thead>
+        <tr>
+            <td>Method</td>
+            <td>URL</td>
+            <td>Notes</td>
+            <td>Parameters</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat-start="info in apiInfo.businesses">
+            <td>{{ info.method }}</td>
+            <td>{{ info.url }}</td>
+            <td>{{ info.notes }}</td>
+            <td>
+                <table class="table table-condensed" ng-if="info.parameters">
+                    <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+                    <tbody><tr ng-repeat="param in info.parameters"><td>{{ param.name }}</td><td>{{ param.type }}</td><td>{{ param.description }}</td></tr></tbody>
+                </table>
+            </td>
+        </tr>
+        <tr ng-repeat-end ng-if="info.responseInfo">
+            <td colspan="3">&nbsp;</td>
+            <td>
+                Response:<br/>
+                {{info.responseInfo.desc}}<br/>
+                Example: <pre class="api-response-example">{{info.responseInfo.example | json}}</pre>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+
+
+<br/>
+<br/>
+<br/>
+<div class="row">
+    <div class="alert col-md-12 bg-primary"><h5>Beacons</h5></div>
+</div>
+    <table class="table table-condensed table-bordered">
+        <thead>
+        <tr>
+            <td>Method</td>
+            <td>URL</td>
+            <td>Notes</td>
+            <td>Parameters</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="info in apiInfo.beacons">
+            <td>{{ info.method }}</td>
+            <td>{{ info.url }}</td>
+            <td>{{ info.notes }}</td>
+            <td>
+                <table class="table table-condensed" ng-if="info.parameters">
+                    <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+                    <tbody><tr ng-repeat="param in info.parameters"><td>{{ param.name }}</td><td>{{ param.type }}</td><td>{{ param.description }}</td></tr></tbody>
+                </table>
+                <span ng-if="info.parameters">-</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+
+
+
+
+
+
+<br/>
+<br/>
+<br/>
+<div class="row">
+    <div class="alert col-md-12 bg-primary"><h5>Neighborhoods and Cities</h5></div>
+</div>
+<table class="table table-condensed table-bordered">
+    <thead>
+    <tr>
+        <td>Method</td>
+        <td>URL</td>
+        <td>Notes</td>
+        <td>Parameters</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat-start="info in apiInfo.neighborhoods">
+        <td>{{ info.method }}</td>
+        <td>{{ info.url }}</td>
+        <td>{{ info.notes }}</td>
+        <td>
+            <table class="table table-condensed" ng-if="info.parameters">
+                <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody><tr ng-repeat="param in info.parameters"><td>{{ param.name }}</td><td>{{ param.type }}</td><td>{{ param.description }}</td></tr></tbody>
+            </table>
+        </td>
+    </tr>
+    <tr ng-repeat-end ng-if="info.responseInfo">
+        <td colspan="3">&nbsp;</td>
+        <td>
+            Response:<br/>
+            {{info.responseInfo.desc}}<br/>
+            Example: <pre class="api-response-example">{{info.responseInfo.example | json}}</pre>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+
+
+
+<div ng-if="appConfigManager.areConditionsEnabled()">
+
+<br/>
+<br/>
+<br/>
+<div class="row">
+    <div class="alert col-md-12 bg-primary"><h5>Conditions</h5></div>
+</div>
+<table class="table table-condensed table-bordered">
+    <thead>
+    <tr>
+        <td>Method</td>
+        <td>URL</td>
+        <td>Notes</td>
+        <td>Parameters</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="info in apiInfo.conditions">
+        <td>{{ info.method }}</td>
+        <td>{{ info.url }}</td>
+        <td>{{ info.notes }}</td>
+        <td>
+            <table class="table table-condensed" ng-if="info.parameters">
+                <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody><tr ng-repeat="param in info.parameters"><td>{{ param.name }}</td><td>{{ param.type }}</td><td>{{ param.description }}</td></tr></tbody>
+            </table>
+            <span ng-if="info.parameters">-</span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</div>
+
+
+
+
+<div ng-if="appConfigManager.areProceduresEnabled()">
+<br/>
+<br/>
+<br/>
+<div class="row">
+    <div class="alert col-md-12 bg-primary"><h5>Procedures</h5></div>
+</div>
+<table class="table table-condensed table-bordered">
+    <thead>
+    <tr>
+        <td>Method</td>
+        <td>URL</td>
+        <td>Notes</td>
+        <td>Parameters</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="info in apiInfo.procedures">
+        <td>{{ info.method }}</td>
+        <td>{{ info.url }}</td>
+        <td>{{ info.notes }}</td>
+        <td>
+            <table class="table table-condensed" ng-if="info.parameters">
+                <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody><tr ng-repeat="param in info.parameters"><td>{{ param.name }}</td><td>{{ param.type }}</td><td>{{ param.description }}</td></tr></tbody>
+            </table>
+            <span ng-if="info.parameters">-</span>
+        </td>
+    </tr>
+    <tr ng-repeat-end ng-if="info.responseInfo">
+        <td colspan="3">&nbsp;</td>
+        <td>
+            Response:<br/>
+            {{info.responseInfo.desc}}<br/>
+            Example: <pre class="api-response-example">{{info.responseInfo.example | json}}</pre>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</div>
+
+
+
+
+
+<br/>
+<br/>
+<br/>
+<div class="row">
+    <div class="alert col-md-12 bg-primary"><h5>Front Page Context</h5></div>
+</div>
+<table class="table table-condensed table-bordered">
+    <thead>
+    <tr>
+        <td>Method</td>
+        <td>URL</td>
+        <td>Notes</td>
+        <td>Parameters</td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat-start="info in apiInfo.frontPage">
+        <td>{{ info.method }}</td>
+        <td>{{ info.url }}</td>
+        <td>{{ info.notes }}</td>
+        <td>
+            <table class="table table-condensed" ng-if="info.parameters">
+                <thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead>
+                <tbody><tr ng-repeat="param in info.parameters"><td>{{ param.name }}</td><td>{{ param.type }}</td><td>{{ param.description }}</td></tr></tbody>
+            </table>
+            <span ng-if="info.parameters">-</span>
+        </td>
+    </tr>
+    <tr ng-repeat-end ng-if="info.responseInfo">
+        <td colspan="3">&nbsp;</td>
+        <td>
+            Response:<br/>
+            {{info.responseInfo.desc}}<br/>
+            Example: <pre class="api-response-example">{{info.responseInfo.example | json}}</pre>
+        </td>
+    </tr>
+    </tbody>
+</table>

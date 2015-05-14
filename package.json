@@ -1,0 +1,29 @@
+{
+  "name": "application-name",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "async": "~0.9.0",
+    "cache-manager": "^0.9.0",
+    "cloudinary": "~1.0.9",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^0.4.1",
+    "ejs": "*",
+    "ejs-locals": "^1.0.2",
+    "express": "3.4.8",
+    "express-session": "^1.7.6",
+    "formidable": "~1.0.14",
+    "mongoskin": "~1.3.20",
+    "passport": "^0.2.1",
+    "passport-stormpath": "^0.2.2",
+    "stormpath": "^0.6.0",
+    "underscore": "~1.6.0",
+    "util": "~0.10.3"
+  },
+  "engines": {
+    "node": "0.10.x"
+  }
+}

@@ -1,0 +1,20 @@
+<legend>{{ headline }}</legend>
+
+<div class="pull-right toolbar-button-div">
+    <a class="btn btn-primary" href="#/beacons-new"><span class="glyphicon-plus">&nbsp;</span>Add Beacon</a>
+</div>
+
+<br/>
+
+<table class="table table-bordered table-condensed table-hover table-striped" ng-table="beaconsContentTableParams">
+    <tr ng-click="editBeacon(beacon.id)" class="clickable-item" ng-repeat="beacon in beacons | orderBy: 'name'">
+        <td data-title="'Name'">{{ beacon.name }}</td>
+        <td data-title="'Beacon ID'">{{ beacon.beaconId }}</td>
+        <td data-title="'Date'">{{ beacon.beaconDate }}</td>
+        <td data-title="'Type'">{{ beacon.beaconType }}</td>
+        <td data-title="'Battery'">{{ beacon.batteryLife }}</td>
+        <td data-title="'General Manager'">{{ beacon.genMgr }}</td>
+        <td data-title="'Location'">{{ formatCoords(beacon) }}</td>
+        <td data-title="'Created At'" class="nobr">{{ beacon.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+    </tr>
+</table>

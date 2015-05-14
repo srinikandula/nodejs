@@ -1,0 +1,22 @@
+<legend>{{ headline }}</legend>
+
+<!--
+<div class="pull-right toolbar-button-div">
+    <a class="btn btn-primary" href="#/users-new"><span class="glyphicon-plus">&nbsp;</span>Add User</a>
+</div>
+-->
+
+<br/>
+
+<span us-spinner spinner-key="spinner-1" spinner-start-active="1"></span>
+
+<span class="small-text">Total: {{ userCount }}</span>
+
+<table class="table table-bordered table-condensed table-hover table-striped" ng-table="userContentTableParams">
+    <tr ng-click="editUser(user.href)" class="clickable-item" ng-repeat="user in users | orderBy: 'surname'">
+        <td data-title="'Last'" sortable="'surname'">{{ user.surname }}</td>
+        <td data-title="'First'" sortable="'givenName'">{{ user.givenName }}</td>
+        <td data-title="'Username'" sortable="'username'">{{ user.username }}</td>
+        <td data-title="'Associated Businesses'">{{ user.businesses | arrayNone }}</td>
+    </tr>
+</table>

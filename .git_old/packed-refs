@@ -1,0 +1,16 @@
+# pack-refs with: peeled fully-peeled 
+3a19032c85266727cf393f122c88f4e50c7249a7 refs/remotes/origin/default-image-by-category
+01fd4975a767097d3d28bcc17e2f38955bd72852 refs/remotes/origin/dev/jason/gia106-gia108-city-neigh-hier
+ecf520c3c8971289926c9d658adffb1391f0dba7 refs/remotes/origin/dyn-class-save
+1963d410ba506ec568d3ffc9b3f8d61e7580b39b refs/remotes/origin/jason/conditions-and-procedures
+20f9c69da9867cdd20225da42287edd2ffe1ce31 refs/remotes/origin/jason/default-image-by-category
+05632e952ae33cd1d73c38c00ba325892d13c3d1 refs/remotes/origin/jason/import-multiple
+a6d0a6b4c11e677eade76f92631d4a47cef4326c refs/remotes/origin/jason/multiple-categories-per-business
+f2d89c51cae807e26a9fd802e49fdbc88a4c692b refs/remotes/origin/jason/new-data-fields
+d71801c71b6a7e7c117113bc6e6b0a8e09cd29a9 refs/remotes/origin/jason/pub-unpub
+7e3c937b80270ab11167657fdf69076aa21a6789 refs/remotes/origin/jason/rokketmed-customizations
+a748460729a6da109431fbb2606640b0df4f060a refs/remotes/origin/jason/user-mgmt-poi-assoc
+d0bf37a43e099cfb954eeaef11d2f1325c5ed3b4 refs/remotes/origin/master
+d8769ecdc9ee522a444c0d039c9d2aa24c5970d6 refs/remotes/origin/poi-pages
+42fcd9727b4ed318096bb56209c8cf897e9f24d9 refs/remotes/origin/stormpath
+730a82022053fe662b5a1d3d008d4527fe0a9803 refs/remotes/origin/thursday-morning-master

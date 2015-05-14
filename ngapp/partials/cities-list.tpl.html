@@ -1,0 +1,110 @@
+<legend>{{ headline }}</legend>
+
+
+<div class="toolbar-button-div pull-right">
+    <button type="button" class="btn btn-sm btn-primary" ng-click="handleClickAddStateCity()"><span class="glyphicon glyphicon-plus"></span> Add City</button>
+</div>
+
+        <br/>
+        <br/>
+
+
+<table class="table table-bordered table-condensed table-hover" ng-table="cityContentTableParams">
+    <tr ng-repeat="city in currentPageOfCities">
+        <td data-title="'State'" class="clickable-item" ng-click="goToNeighborhoodsList(city.id)">{{ city.state }}</td>
+        <td data-title="'City'" sortable="'city'" class="clickable-item" ng-click="goToNeighborhoodsList(city.id)">{{ city.name }}</td>
+        <td data-title="'Center Lon/Lat'" class="lat-lon-cell">
+            <button type="button" class="btn btn-xs btn-primary" ng-click="handleEditLatLonClicked(city)"><i class="glyphicon glyphicon-pencil"></i></button>
+            &nbsp;
+            <a ng-href="{{getHrefForGoogleMapWithLonLat(city)}}" target="_blank">{{ formatCoords(city) }}</a>
+        </td>
+        <td data-title="'Neighborhoods'" class="clickable-item" ng-click="goToNeighborhoodsList(city.id)">{{city.childrenCount}}</td>
+    </tr>
+    <tr ng-if="!currentPageOfCities || currentPageOfCities.length === 0">
+        <td colspan="4">No cities exist.  Please add some.</td>
+    </tr>
+</table>
+
+
+
+
+
+
+<!-- modal popup for adding city/state -->
+
+
+<script type="text/ng-template" id="neighborhood-add-city-state-modal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Add a New City</h3>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <form name="cityStateNeighForm" class="form-horizontal" role="form">
+            <div class="form-group">
+                <label class="col-sm-3 control-label" for="modalStateInput">State</label>
+                <div class="row">
+                    <div class="col-sm-7">
+                        <state-options id="modalStateInput" class="field" name="modalStateInput" ng-model="neighborhood.state" required></state-options>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label" for="cityInput">City</label>
+                <div class="col-sm-7">
+                    <input type="text" id="cityInput" class="form-control" ng-model="neighborhood.city">
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()" ng-disabled="!isInputValid()">Add</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
+
+
+
+
+<!-- modal popup for lat/lon input -->
+<script type="text/ng-template" id="edit-lat-lon-modal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Edit Latitude/Longitude for {{ city.name }}</h3>
+    </div>
+    <div class="modal-body">
+
+        <!-- ---------------------------------------------------------------------------- -->
+        <form name="editLatLonForm" class="form-horizontal" role="form">
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="latInput">Latitude</label>
+                <div class="col-sm-4">
+                    <input type="text" id="latInput" class="form-control" ng-model="cityInfo.lat">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label" for="lonInput">Longitude</label>
+                <div class="col-sm-4">
+                    <input type="text" id="lonInput" class="form-control" ng-model="cityInfo.long">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6 col-sm-offset-2">
+                    <a ng-href="{{ getHrefForGoogleMapWithLonLat() }}" target="_blank"><span class="glyphicon glyphicon-globe"> </span> &nbsp;View on Map in New Window</a>
+                </div>
+            </div>
+        </form>
+        <!-- ---------------------------------------------------------------------------- -->
+
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()" ng-disabled="!isInputValid()">Save</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>

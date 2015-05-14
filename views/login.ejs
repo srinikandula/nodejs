@@ -1,0 +1,23 @@
+<% layout('layout') -%>
+<% stylesheet('/css/login.css') -%>
+
+<link href="/css/bootstrap.min.css" rel="stylesheet">
+
+<form class="form-signin" role="form" action="/login" method="post">
+    <h2 class="form-signin-heading">Please sign in</h2>
+    <input type="email" name="username" class="form-control" placeholder="Email address" required autofocus>
+    <input type="password" name="password" class="form-control" placeholder="Password" required>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    <div class="text-center"><a href="/forgotPassword">Forgot Password?</a></div>
+</form>
+
+
+<div class="row">
+    <div class="col-xs-6 col-xs-offset-3 alert alert-info text-center">
+        <h3>Don't have an account?</h3>
+        <a href="/register" class="btn btn-primary btn-sm">Create An Account</a>
+        <p>&nbsp;</p>
+    </div>
+</div>
+
+

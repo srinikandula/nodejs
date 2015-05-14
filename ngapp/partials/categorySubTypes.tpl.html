@@ -1,0 +1,42 @@
+<legend>{{ headline }}</legend>
+
+
+<div class="row">
+    <div class="col-md-12"><button type="button" class="btn btn-primary btn-sm pull-right" ng-click="addCategorySubTypeClicked()"><span class="glyphicon glyphicon-plus"></span>&nbsp; Add Category Sub-Type</button></div>
+</div>
+
+<br/>
+<ol class="breadcrumb">
+    <li><a ng-href="/#/categories">All Categories</a></li>
+    <li><a ng-href="/#/categories/{{ categoryId }}">{{ currentCategory.name }}</a></li>
+    <li>{{ currentCategoryType.name }}</li>
+</ol>
+<br/>
+<br/>
+
+
+<table class="table table-bordered table-condensed table-hover table-striped">
+    <thead>
+    <tr>
+        <th>Category Sub-Type</th>
+        <th>Edit Name</th>
+        <th>Delete?</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="categorySubtype in categorySubTypes[categoryTypeId] | orderBy: 'name'">
+        <td id="{{ categorySubtype.id }}">
+            {{ categorySubtype.name }}
+        </td>
+        <td class="col-sm-1">
+            <button type="button" class="btn btn-info btn-xs pull-left glyphicon glyphicon-pencil" ng-click="handleEditCategorySubTypeNameClicked(categorySubtype)"></button>
+        </td>
+        <td class="col-sm-1">
+            <button type="button" class="btn btn-danger btn-xs pull-left glyphicon glyphicon-remove" ng-really-click="deleteCategorySubTypeClicked(categorySubtype.id)" ng-really-message="Are you sure you want to delete category sub-type '{{categorySubtype.name}}'?"></button>
+        </td>
+    </tr>
+    <tr ng-if="!categorySubTypes[categoryTypeId] || categorySubTypes[categoryTypeId].length === 0">
+        <td colspan="2">No category sub-types exist.  Please add some.</td>
+    </tr>
+    </tbody>
+</table>

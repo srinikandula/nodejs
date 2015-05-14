@@ -1,0 +1,32 @@
+<legend>{{ headline }}</legend>
+
+<div class="bs-callout bs-callout-info">
+    <h4>Current User Info</h4>
+    <br/>
+        <strong>Username:</strong> {{ user.username }}
+    <br/>
+        <strong>Full Name:</strong> {{ user.fullName }}
+
+    <br/>
+    <strong>Roles:</strong>
+    <ul ng-if="groups.length">
+        <li ng-repeat="group in groups">{{ group.name }}</li>
+    </ul>
+    <span ng-if="!groups.length">None</span>
+</div>
+
+
+<accordion close-others="oneAtATime">
+    <accordion-group is-open="status.open">
+        <accordion-heading>
+            <div class="debug-accordion">
+                <i class="glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i> Debug info
+            </div>
+        </accordion-heading>
+        User
+        <pre class="tiny-debug" ng-bind="user | json"></pre>
+        Groups
+        <pre class="tiny-debug" ng-bind="groups | json"></pre>
+    </accordion-group>
+</accordion>
+

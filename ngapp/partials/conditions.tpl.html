@@ -1,0 +1,27 @@
+<legend>{{ headline }}</legend>
+
+<div class="pull-right toolbar-button-div">
+    <a class="btn btn-primary" href="#/conditions-new"><span class="glyphicon-plus">&nbsp;</span>Add Condition</a>
+</div>
+
+<br/>
+
+<table class="table table-bordered table-condensed table-hover table-striped">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>ICD-9 Code</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-click="editCondition(condition.id)" class="clickable-item" ng-repeat="condition in conditions | orderBy: 'name'">
+        <td data-title="'Name'">{{ condition.name }}</td>
+        <td data-title="'Description'">{{ condition.description }}</td>
+        <td class="ignore-cells">{{ condition.icdCode }}</td>
+    </tr>
+    <tr ng-if="!conditions || conditions.length === 0">
+        <td colspan="3">No conditions exist.  Please add some.</td>
+    </tr>
+    </tbody>
+</table>
